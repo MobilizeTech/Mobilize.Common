@@ -11,12 +11,24 @@ namespace Mobilize.Common.Http
 {
     public static class RestClient
     {
+        /// <summary>
+        /// Retrive and deserialize JSON data
+        /// </summary>
+        /// <param name="url">URL from where to retrieve</param>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>Deserialized object</returns>
         public static async Task<T> GetJsonData<T>(string url, string credentials = null)
         {
             var json = await GetJson<T>(url, credentials);
             return JsonConvert.DeserializeObject<T>(json);
         }
 
+        /// <summary>
+        /// Retrive JSON arrays without a root element
+        /// </summary>
+        /// <param name="url">URL from where to retrieve</param>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>List of objects</returns>
         public static async Task<IList<T>> GetJsonArray<T>(string url, string credentials = null)
         {
             var json = await GetJson<T>(url, credentials);
@@ -41,6 +53,12 @@ namespace Mobilize.Common.Http
             return objectsList;
         }
 
+        /// <summary>
+        /// Retrives JSON data
+        /// </summary>
+        /// <param name="url">URL from where to retrieve</param>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>JSON string</returns>
         private static async Task<string> GetJson<T>(string url, string credentials = null)
         {
             using (var client = new HttpClient())
@@ -56,6 +74,13 @@ namespace Mobilize.Common.Http
             }
         }
 
+        /// <summary>
+        /// Posts JSON data to a URL
+        /// </summary>
+        /// <param name="url">URL to which to POST</param>
+        /// <param name="httpContent">Content to POST</param>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>Deserialized object</returns>
         public static async Task<T> PostJsonData<T>(string url, HttpContent httpContent, string credentials = null)
         {
             using (var client = new HttpClient())
@@ -71,6 +96,11 @@ namespace Mobilize.Common.Http
             }
         }
 
+        /// <summary>
+        /// Creates basic authorization
+        /// </summary>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>Authentication header</returns>
         private static AuthenticationHeaderValue AddBasicAuthorizationHeader(string credentials)
         {
             var credentialsBytes = Encoding.UTF8.GetBytes(credentials);

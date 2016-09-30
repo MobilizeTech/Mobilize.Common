@@ -3,6 +3,9 @@ using Newtonsoft.Json.Serialization;
 
 namespace Mobilize.Common.Http
 {
+    /// <summary>
+    /// Serializes JSON with lowercase keys
+    /// </summary>
     public static class LowercaseJsonSerializer
     {
         public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
