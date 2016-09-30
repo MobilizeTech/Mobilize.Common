@@ -97,10 +97,10 @@ namespace Mobilize.Common.Http
         }
 
         /// <summary>
-        /// Creates basic authorization
+        /// Creates a basic authentication header 
         /// </summary>
-        /// <param name="credentials">Credentials for basic authentication header</param>
-        /// <returns>Authentication header</returns>
+        /// <param name="credentials">Credentials to use for basic authentication header</param>
+        /// <returns>Base64 encoded Authentication header</returns>
         private static AuthenticationHeaderValue AddBasicAuthorizationHeader(string credentials)
         {
             var credentialsBytes = Encoding.UTF8.GetBytes(credentials);
