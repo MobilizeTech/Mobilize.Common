@@ -1,2 +1,2 @@
 # Mobilize.Common
-Mobile cross platform libraries of helper and utility methods
+Native mobile cross platform libraries of helper and utility methods
