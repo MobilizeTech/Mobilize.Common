@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -93,6 +94,39 @@ namespace Mobilize.Common.Http
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var result = await client.PostAsync(url, httpContent);
                 return JsonConvert.DeserializeObject<T>(await result.Content.ReadAsStringAsync());
+            }
+        }
+
+        /// <summary>
+        /// Posts no content to a URL
+        /// </summary>
+        /// <param name="url">URL to which to POST</param>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>True if successfully processed, otherwise false</returns>
+        public static bool PostNoContent(string url, string credentials = null)
+        {
+            using (var client = new HttpClient())
+            {
+                if (!string.IsNullOrEmpty(credentials))
+                {
+                    AddBasicAuthorizationHeader(credentials);
+                }
+
+                try
+                {
+                    var httpResponseMessage = client.PostAsync(url, null).Result;
+
+                    if (httpResponseMessage.StatusCode == HttpStatusCode.NoContent)
+                    {
+                        return true;
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    return false;
+                }
+
+                return false;
             }
         }
 
