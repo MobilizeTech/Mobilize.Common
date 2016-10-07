@@ -5,7 +5,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
 namespace Mobilize.Common.Http
@@ -18,9 +17,21 @@ namespace Mobilize.Common.Http
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
         /// <returns>Deserialized object</returns>
-        public static async Task<T> GetJsonData<T>(string url, string credentials = null)
+        public static T Get<T>(string url, string credentials = null)
         {
-            var json = await GetJson<T>(url, credentials);
+            var json = GetJson<T>(url, credentials);
+            return JsonConvert.DeserializeObject<T>(json);
+        }
+
+        /// <summary>
+        /// Asynchronously retrive and deserialize JSON data
+        /// </summary>
+        /// <param name="url">URL from where to retrieve</param>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>Deserialized object</returns>
+        public static async Task<T> GetAsync<T>(string url, string credentials = null)
+        {
+            var json = await GetJsonAsync<T>(url, credentials);
             return JsonConvert.DeserializeObject<T>(json);
         }
 
@@ -30,68 +41,65 @@ namespace Mobilize.Common.Http
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
         /// <returns>List of objects</returns>
-        public static async Task<IList<T>> GetJsonArray<T>(string url, string credentials = null)
+        public static IList<T> GetArray<T>(string url, string credentials = null)
         {
-            var json = await GetJson<T>(url, credentials);
-            var array = JArray.Parse(json);
-            IList<T> objectsList = new List<T>();
-            List<string> invalidJsonElements = null;
-
-            foreach (var item in array)
-            {
-                try
-                {
-                    // CorrectElements
-                    objectsList.Add(item.ToObject<T>());
-                }
-                catch (Exception)
-                {
-                    invalidJsonElements = invalidJsonElements ?? new List<string>();
-                    invalidJsonElements.Add(item?.ToString());
-                }
-            }
-
-            return objectsList;
+            var json = GetJsonAsync<T>(url, credentials).Result;
+            return JsonHelper.ParseJsonArray<T>(json);
         }
 
         /// <summary>
-        /// Retrives JSON data
+        /// Asynchronously retrieve JSON arrays without a root element
         /// </summary>
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
-        /// <returns>JSON string</returns>
-        private static async Task<string> GetJson<T>(string url, string credentials = null)
+        /// <returns>List of objects</returns>
+        public static async Task<IList<T>> GetArrayAsync<T>(string url, string credentials = null)
         {
-            using (var client = new HttpClient())
-            {
-                if (!string.IsNullOrEmpty(credentials))
-                {
-                    AddBasicAuthorizationHeader(credentials);
-                }
-
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var result = await client.GetAsync(url);
-                return await result.Content.ReadAsStringAsync();
-            }
+            var json = await GetJsonAsync<T>(url, credentials);
+            return JsonHelper.ParseJsonArray<T>(json);           
         }
-
+ 
         /// <summary>
-        /// Posts JSON data to a URL
+        /// Post JSON data to a URL
         /// </summary>
         /// <param name="url">URL to which to POST</param>
         /// <param name="httpContent">Content to POST</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
         /// <returns>Deserialized object</returns>
-        public static async Task<T> PostJsonData<T>(string url, HttpContent httpContent, string credentials = null)
+        public static T Post<T>(string url, HttpContent content, string credentials = null)
         {
             using (var client = new HttpClient())
             {
-                if (!string.IsNullOrEmpty(credentials))
+                AddRequestHeaders(client, credentials);
+                try
                 {
-                    AddBasicAuthorizationHeader(credentials);
-                }
+                    var result = client.PostAsync(url, content).Result;
+                    if (result.StatusCode != HttpStatusCode.OK)
+                    {
+                        return default(T);
+                    }
 
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    return JsonConvert.DeserializeObject<T>(result.Content.ReadAsStringAsync().Result);
+                }
+                catch
+                {
+                    return default(T);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously post JSON data to a URL
+        /// </summary>
+        /// <param name="url">URL to which to POST</param>
+        /// <param name="httpContent">Content to POST</param>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>Deserialized object</returns>
+        public static async Task<T> PostAsync<T>(string url, HttpContent httpContent, string credentials = null)
+        {
+            using (var client = new HttpClient())
+            {
+                AddRequestHeaders(client, credentials);
                 var result = await client.PostAsync(url, httpContent);
                 return JsonConvert.DeserializeObject<T>(await result.Content.ReadAsStringAsync());
             }
@@ -107,21 +115,16 @@ namespace Mobilize.Common.Http
         {
             using (var client = new HttpClient())
             {
-                if (!string.IsNullOrEmpty(credentials))
-                {
-                    AddBasicAuthorizationHeader(credentials);
-                }
-
+                AddRequestHeaders(client, credentials);
                 try
                 {
                     var httpResponseMessage = client.PostAsync(url, null).Result;
-
                     if (httpResponseMessage.StatusCode == HttpStatusCode.NoContent)
                     {
                         return true;
                     }
                 }
-                catch (OperationCanceledException)
+                catch
                 {
                     return false;
                 }
@@ -129,16 +132,72 @@ namespace Mobilize.Common.Http
                 return false;
             }
         }
+ 
+        /// <summary>
+        /// Retrives JSON data
+        /// </summary>
+        /// <param name="url">URL from where to retrieve</param>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>JSON string</returns>
+        private static async Task<string> GetJsonAsync<T>(string url, string credentials = null)
+        {
+            using (var client = new HttpClient())
+            {
+                AddRequestHeaders(client, credentials);
+                var result = await client.GetAsync(url);
+                return await result.Content.ReadAsStringAsync();
+            }
+        }
 
         /// <summary>
-        /// Creates a basic authentication header 
+        /// Retrives JSON data
         /// </summary>
-        /// <param name="credentials">Credentials to use for basic authentication header</param>
-        /// <returns>Base64 encoded Authentication header</returns>
-        private static AuthenticationHeaderValue AddBasicAuthorizationHeader(string credentials)
+        /// <param name="url">URL from where to retrieve</param>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>JSON string</returns>
+        private static string GetJson<T>(string url, string credentials = null)
         {
-            var credentialsBytes = Encoding.UTF8.GetBytes(credentials);
-            return new AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentialsBytes));
+            using (var client = new HttpClient())
+            {
+                AddRequestHeaders(client, credentials);
+                var result = client.GetAsync(url).Result;
+                return result.Content.ReadAsStringAsync().Result;
+            }
+        }
+
+        /// <summary>
+        /// Adds request headers
+        /// </summary>
+        /// <param name="client">Client for which to add headers</param>
+        /// <param name="credentials">Credentials to use for basic authentication header</param>
+        private static void AddRequestHeaders(HttpClient client, string credentials = null)
+        {
+            AddBasicAuthorizationHeader(client, credentials);
+            AddAcceptJsonHeader(client);
+        }
+
+        /// <summary>
+        /// Adds a basic authentication header 
+        /// </summary>
+        /// <param name="client">Client for which to add headers</param>
+        /// <param name="credentials">Credentials to use for basic authentication header</param>
+        private static void AddBasicAuthorizationHeader(HttpClient client, string credentials)
+        {
+            if (!string.IsNullOrEmpty(credentials))
+            {
+                var credentialsBytes = Encoding.UTF8.GetBytes(credentials);
+                var header = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentialsBytes));
+                client.DefaultRequestHeaders.Authorization = header;
+            }
+        }
+
+        /// <summary>
+        /// Adds a JSON accept header
+        /// </summary>
+        /// <param name="client">Client for which to add headers</param>
+        private static void AddAcceptJsonHeader(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
     }
 }

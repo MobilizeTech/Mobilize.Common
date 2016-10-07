@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Mobilize.Common.Http
 {
@@ -28,6 +27,34 @@ namespace Mobilize.Common.Http
         {
             string postBody = JsonConvert.SerializeObject(o, settings ?? DefaultSettings);
             return new StringContent(postBody, Encoding.UTF8, "application/json");
+        }
+
+        /// <summary>
+        /// Parses JSON array into list of objects
+        /// </summary>
+        /// <typeparam name="T">Type of object</typeparam>
+        /// <param name="json">JSON to parse</param>
+        /// <returns>List of objects</returns>
+        public static IList<T> ParseJsonArray<T>(string json)
+        {
+            var array = JArray.Parse(json);
+            IList<T> objectsList = new List<T>();
+            List<string> invalidJsonElements = null;
+
+            foreach (var item in array)
+            {
+                try
+                {
+                    objectsList.Add(item.ToObject<T>());
+                }
+                catch (Exception)
+                {
+                    invalidJsonElements = invalidJsonElements ?? new List<string>();
+                    invalidJsonElements.Add(item?.ToString());
+                }
+            }
+
+            return objectsList;
         }
     }
 }

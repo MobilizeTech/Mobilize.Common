@@ -3,7 +3,9 @@ using Newtonsoft.Json.Serialization;
 
 namespace Mobilize.Common.Http
 {
+    /// <summary>
     /// Serializes JSON with camel case keys
+    /// </summary>
     public static class CamelCaseJsonSerializer
     {
         public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
