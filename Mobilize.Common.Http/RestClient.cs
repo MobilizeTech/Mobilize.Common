@@ -92,34 +92,36 @@ namespace Mobilize.Common.Http
         /// Asynchronously post JSON data to a URL
         /// </summary>
         /// <param name="url">URL to which to POST</param>
-        /// <param name="httpContent">Content to POST</param>
+        /// <param name="content">Content to POST</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
         /// <returns>Deserialized object</returns>
-        public static async Task<T> PostAsync<T>(string url, HttpContent httpContent, string credentials = null)
+        public static async Task<T> PostAsync<T>(string url, HttpContent content, string credentials = null)
         {
             using (var client = new HttpClient())
             {
                 AddRequestHeaders(client, credentials);
-                var result = await client.PostAsync(url, httpContent);
+                var result = await client.PostAsync(url, content);
                 return JsonConvert.DeserializeObject<T>(await result.Content.ReadAsStringAsync());
             }
         }
 
         /// <summary>
-        /// Posts no content to a URL
+        /// Post JSON data to a URL with blank response
         /// </summary>
         /// <param name="url">URL to which to POST</param>
+        /// <param name="content">Content to POST</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
         /// <returns>True if successfully processed, otherwise false</returns>
-        public static bool PostNoContent(string url, string credentials = null)
+        public static bool PostBlankResponse(string url, HttpContent content, string credentials = null)
         {
             using (var client = new HttpClient())
             {
                 AddRequestHeaders(client, credentials);
                 try
                 {
-                    var httpResponseMessage = client.PostAsync(url, null).Result;
-                    if (httpResponseMessage.StatusCode == HttpStatusCode.NoContent)
+                    var httpResponseMessage = client.PostAsync(url, content).Result;
+                    if (httpResponseMessage.StatusCode == HttpStatusCode.NoContent ||
+                        httpResponseMessage.StatusCode == HttpStatusCode.OK)
                     {
                         return true;
                     }
