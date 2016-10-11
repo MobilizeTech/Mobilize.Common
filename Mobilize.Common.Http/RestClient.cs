@@ -185,7 +185,7 @@ namespace Mobilize.Common.Http
         /// <param name="credentials">Credentials to use for basic authentication header</param>
         private static void AddBasicAuthorizationHeader(HttpClient client, string credentials)
         {
-            if (!string.IsNullOrEmpty(credentials))
+            if (!string.IsNullOrWhiteSpace(credentials))
             {
                 var credentialsBytes = Encoding.UTF8.GetBytes(credentials);
                 var header = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentialsBytes));
