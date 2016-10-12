@@ -12,7 +12,7 @@ namespace Mobilize.Common.Http
     public static class RestClient
     {
         /// <summary>
-        /// Retrive and deserialize JSON data
+        /// Retrieve and deserialize JSON data
         /// </summary>
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
@@ -24,7 +24,7 @@ namespace Mobilize.Common.Http
         }
 
         /// <summary>
-        /// Asynchronously retrive and deserialize JSON data
+        /// Asynchronously retrieve and deserialize JSON data
         /// </summary>
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
@@ -36,7 +36,7 @@ namespace Mobilize.Common.Http
         }
 
         /// <summary>
-        /// Retrive JSON arrays without a root element
+        /// Retrieve JSON arrays without a root element
         /// </summary>
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
@@ -63,7 +63,7 @@ namespace Mobilize.Common.Http
         /// Post JSON data to a URL
         /// </summary>
         /// <param name="url">URL to which to POST</param>
-        /// <param name="httpContent">Content to POST</param>
+        /// <param name="content">Content to POST</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
         /// <returns>Deserialized object</returns>
         public static T Post<T>(string url, HttpContent content, string credentials = null)
@@ -136,7 +136,7 @@ namespace Mobilize.Common.Http
         }
  
         /// <summary>
-        /// Retrives JSON data
+        /// Retrieves JSON data
         /// </summary>
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
@@ -152,7 +152,7 @@ namespace Mobilize.Common.Http
         }
 
         /// <summary>
-        /// Retrives JSON data
+        /// Retrieves JSON data
         /// </summary>
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
