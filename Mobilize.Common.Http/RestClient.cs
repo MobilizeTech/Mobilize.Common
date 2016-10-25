@@ -136,7 +136,7 @@ namespace Mobilize.Common.Http
         }
  
         /// <summary>
-        /// Retrieves JSON data
+        /// Retrieve JSON data
         /// </summary>
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
@@ -152,7 +152,7 @@ namespace Mobilize.Common.Http
         }
 
         /// <summary>
-        /// Retrieves JSON data
+        /// Retrieve JSON data
         /// </summary>
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
@@ -168,7 +168,7 @@ namespace Mobilize.Common.Http
         }
 
         /// <summary>
-        /// Adds request headers
+        /// Add request headers
         /// </summary>
         /// <param name="client">Client for which to add headers</param>
         /// <param name="credentials">Credentials to use for basic authentication header</param>
@@ -179,7 +179,7 @@ namespace Mobilize.Common.Http
         }
 
         /// <summary>
-        /// Adds a basic authentication header 
+        /// Add a basic authentication header 
         /// </summary>
         /// <param name="client">Client for which to add headers</param>
         /// <param name="credentials">Credentials to use for basic authentication header</param>
@@ -187,14 +187,25 @@ namespace Mobilize.Common.Http
         {
             if (!string.IsNullOrWhiteSpace(credentials))
             {
-                var credentialsBytes = Encoding.UTF8.GetBytes(credentials);
-                var header = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentialsBytes));
+                var encodedCredentials = Base64Encode(credentials);
+                var header = new AuthenticationHeaderValue("Basic", encodedCredentials);
                 client.DefaultRequestHeaders.Authorization = header;
             }
         }
 
         /// <summary>
-        /// Adds a JSON accept header
+        /// Base 64 encode a string
+        /// </summary>
+        /// <param name="s">String to encode</param>
+        /// <returns>Encoded string</returns>
+        public static string Base64Encode(string s)
+        {
+            var credentialsBytes = Encoding.UTF8.GetBytes(s);
+            return Convert.ToBase64String(credentialsBytes);
+        }
+
+        /// <summary>
+        /// Add a JSON accept header
         /// </summary>
         /// <param name="client">Client for which to add headers</param>
         private static void AddAcceptJsonHeader(HttpClient client)
