@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace Mobilize.Common.Http
 {
@@ -56,9 +56,9 @@ namespace Mobilize.Common.Http
         public static async Task<IList<T>> GetArrayAsync<T>(string url, string credentials = null)
         {
             var json = await GetJsonAsync<T>(url, credentials);
-            return JsonHelper.ParseJsonArray<T>(json);           
+            return JsonHelper.ParseJsonArray<T>(json);
         }
- 
+
         /// <summary>
         /// Post JSON data to a URL
         /// </summary>
@@ -66,6 +66,7 @@ namespace Mobilize.Common.Http
         /// <param name="content">Content to POST</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
         /// <returns>Deserialized object</returns>
+        public static T Post<T>(string url, HttpContent content, string credentials = null, JsonSerializerSettings settings = null)
         {
             using (var client = new HttpClient())
             {
@@ -78,6 +79,7 @@ namespace Mobilize.Common.Http
                         return default(T);
                     }
 
+                    var json = result.Content.ReadAsStringAsync().Result;
                     return DeserializeJson<T>(json, settings);
                 }
                 catch
@@ -94,6 +96,7 @@ namespace Mobilize.Common.Http
         /// <param name="content">Content to POST</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
         /// <returns>Deserialized object</returns>
+        public static async Task<T> PostAsync<T>(string url, HttpContent content, string credentials = null, JsonSerializerSettings settings = null)
         {
             using (var client = new HttpClient())
             {
@@ -133,7 +136,7 @@ namespace Mobilize.Common.Http
                 return false;
             }
         }
- 
+
         /// <summary>
         /// Retrieve JSON data
         /// </summary>
@@ -166,6 +169,13 @@ namespace Mobilize.Common.Http
             }
         }
 
+        /// <summary>
+        /// Deserializes JSON data
+        /// </summary>
+        /// <typeparam name="T">Type to which to deserialize</typeparam>
+        /// <param name="json">Json to deserialize</param>
+        /// <param name="settings">Serializer settings</param>
+        /// <returns>Deserialized object</returns>
         private static T DeserializeJson<T>(string json, JsonSerializerSettings settings = null)
         {
             if (settings == null)
