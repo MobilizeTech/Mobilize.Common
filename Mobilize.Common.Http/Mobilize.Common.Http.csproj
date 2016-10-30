@@ -34,6 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="UtcDateTimeZoneJsonSerializer.cs" />
     <Compile Include="JsonHelper.cs" />
     <Compile Include="CamelCaseJsonSerializer.cs" />
     <Compile Include="LowercaseJsonSerializer.cs" />
