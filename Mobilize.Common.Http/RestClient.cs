@@ -17,10 +17,10 @@ namespace Mobilize.Common.Http
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
         /// <returns>Deserialized object</returns>
-        public static T Get<T>(string url, string credentials = null)
+        public static T Get<T>(string url, string credentials = null, JsonSerializerSettings settings = null)
         {
             var json = GetJson<T>(url, credentials);
-            return JsonConvert.DeserializeObject<T>(json);
+            return DeserializeJson<T>(json, settings);
         }
 
         /// <summary>
@@ -29,10 +29,10 @@ namespace Mobilize.Common.Http
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
         /// <returns>Deserialized object</returns>
-        public static async Task<T> GetAsync<T>(string url, string credentials = null)
+        public static async Task<T> GetAsync<T>(string url, string credentials = null, JsonSerializerSettings settings = null)
         {
             var json = await GetJsonAsync<T>(url, credentials);
-            return JsonConvert.DeserializeObject<T>(json);
+            return DeserializeJson<T>(json, settings);
         }
 
         /// <summary>
@@ -66,7 +66,6 @@ namespace Mobilize.Common.Http
         /// <param name="content">Content to POST</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
         /// <returns>Deserialized object</returns>
-        public static T Post<T>(string url, HttpContent content, string credentials = null)
         {
             using (var client = new HttpClient())
             {
@@ -79,7 +78,7 @@ namespace Mobilize.Common.Http
                         return default(T);
                     }
 
-                    return JsonConvert.DeserializeObject<T>(result.Content.ReadAsStringAsync().Result);
+                    return DeserializeJson<T>(json, settings);
                 }
                 catch
                 {
@@ -95,13 +94,13 @@ namespace Mobilize.Common.Http
         /// <param name="content">Content to POST</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
         /// <returns>Deserialized object</returns>
-        public static async Task<T> PostAsync<T>(string url, HttpContent content, string credentials = null)
         {
             using (var client = new HttpClient())
             {
                 AddRequestHeaders(client, credentials);
                 var result = await client.PostAsync(url, content);
-                return JsonConvert.DeserializeObject<T>(await result.Content.ReadAsStringAsync());
+                var json = await result.Content.ReadAsStringAsync();
+                return DeserializeJson<T>(json, settings);
             }
         }
 
@@ -165,6 +164,16 @@ namespace Mobilize.Common.Http
                 var result = client.GetAsync(url).Result;
                 return result.Content.ReadAsStringAsync().Result;
             }
+        }
+
+        private static T DeserializeJson<T>(string json, JsonSerializerSettings settings = null)
+        {
+            if (settings == null)
+            {
+                return JsonConvert.DeserializeObject<T>(json);
+            }
+
+            return JsonConvert.DeserializeObject<T>(json, settings);
         }
 
         /// <summary>
