@@ -16,6 +16,7 @@ namespace Mobilize.Common.Http
         /// </summary>
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <param name="settings">Serializer settings to use</param>
         /// <returns>Deserialized object</returns>
         public static T Get<T>(string url, string credentials = null, JsonSerializerSettings settings = null)
         {
@@ -28,6 +29,7 @@ namespace Mobilize.Common.Http
         /// </summary>
         /// <param name="url">URL from where to retrieve</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <param name="settings">Serializer settings to use</param>
         /// <returns>Deserialized object</returns>
         public static async Task<T> GetAsync<T>(string url, string credentials = null, JsonSerializerSettings settings = null)
         {
@@ -65,6 +67,7 @@ namespace Mobilize.Common.Http
         /// <param name="url">URL to which to POST</param>
         /// <param name="content">Content to POST</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <param name="settings">Serializer settings to use</param>
         /// <returns>Deserialized object</returns>
         public static T Post<T>(string url, HttpContent content, string credentials = null, JsonSerializerSettings settings = null)
         {
@@ -95,6 +98,7 @@ namespace Mobilize.Common.Http
         /// <param name="url">URL to which to POST</param>
         /// <param name="content">Content to POST</param>
         /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <param name="settings">Serializer settings to use</param>
         /// <returns>Deserialized object</returns>
         public static async Task<T> PostAsync<T>(string url, HttpContent content, string credentials = null, JsonSerializerSettings settings = null)
         {
@@ -121,19 +125,37 @@ namespace Mobilize.Common.Http
                 AddRequestHeaders(client, credentials);
                 try
                 {
-                    var httpResponseMessage = client.PostAsync(url, content).Result;
-                    if (httpResponseMessage.StatusCode == HttpStatusCode.NoContent ||
-                        httpResponseMessage.StatusCode == HttpStatusCode.OK)
-                    {
-                        return true;
-                    }
+                    var response = client.PostAsync(url, content).Result;
+                    return IsBlankResponse(response);
                 }
                 catch
                 {
                     return false;
                 }
+            }
+        }
 
-                return false;
+        /// <summary>
+        /// Asynchronously post JSON data to a URL with blank response
+        /// </summary>
+        /// <param name="url">URL to which to POST</param>
+        /// <param name="content">Content to POST</param>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>True if successfully processed, otherwise false</returns>
+        public async static Task<bool> PostBlankResponseAsync(string url, HttpContent content, string credentials = null)
+        {
+            using (var client = new HttpClient())
+            {
+                AddRequestHeaders(client, credentials);
+                try
+                {
+                    var response = await client.PostAsync(url, content);
+                    return IsBlankResponse(response);
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
 
@@ -174,7 +196,7 @@ namespace Mobilize.Common.Http
         /// </summary>
         /// <typeparam name="T">Type to which to deserialize</typeparam>
         /// <param name="json">Json to deserialize</param>
-        /// <param name="settings">Serializer settings</param>
+        /// <param name="settings">Serializer settings to use</param>
         /// <returns>Deserialized object</returns>
         private static T DeserializeJson<T>(string json, JsonSerializerSettings settings = null)
         {
@@ -184,6 +206,22 @@ namespace Mobilize.Common.Http
             }
 
             return JsonConvert.DeserializeObject<T>(json, settings);
+        }
+
+        /// <summary>
+        /// Checks for successful blank response 
+        /// </summary>
+        /// <param name="response">Response message to check</param>
+        /// <returns>True if successfully processed, otherwise false</returns>
+        public static bool IsBlankResponse(HttpResponseMessage response)
+        {
+            if (response.StatusCode == HttpStatusCode.NoContent ||
+                response.StatusCode == HttpStatusCode.OK)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
