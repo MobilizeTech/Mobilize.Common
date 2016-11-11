@@ -7,15 +7,14 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Mobilize.Common.Extensions")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Native mobile PCL of extension methods")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("Mobilize.Common.Extensions")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2016")]
+[assembly: AssemblyCompany("Mobilize")]
+[assembly: AssemblyProduct("Mobilize.Common.Extension")]
+[assembly: AssemblyCopyright("Copyright © Mobilize 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]
-
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
