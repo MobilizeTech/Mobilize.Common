@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Mobilize.Common.Http")]
-[assembly: AssemblyDescription("Native mobile PCL of HTTP helper and utility methods")]
+[assembly: AssemblyDescription("Native mobile portable class library of HTTP helper and utility methods")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Mobilize")]
 [assembly: AssemblyProduct("Mobilize.Common.Http")]

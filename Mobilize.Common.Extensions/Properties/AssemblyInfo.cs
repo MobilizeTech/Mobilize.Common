@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Mobilize.Common.Extensions")]
-[assembly: AssemblyDescription("Native mobile PCL of extension methods")]
+[assembly: AssemblyDescription("Native mobile portable class library of extension methods")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Mobilize")]
 [assembly: AssemblyProduct("Mobilize.Common.Extension")]
