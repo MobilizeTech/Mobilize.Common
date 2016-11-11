@@ -5,4 +5,4 @@ Native mobile cross platform libraries of helper and utility methods
 
 | Library    | Link          |
 |-------------|---------------|
-| Newtonsoft Json.NET | http://www.newtonsoft.com/json |
+| Newtonsoft Json.NET | https://www.nuget.org/packages/Newtonsoft.Json/9.0.1 |
