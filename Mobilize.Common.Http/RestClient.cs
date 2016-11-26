@@ -76,13 +76,13 @@ namespace Mobilize.Common.Http
                 AddRequestHeaders(client, credentials);
                 try
                 {
-                    var result = client.PostAsync(url, content).Result;
-                    if (result.StatusCode != HttpStatusCode.OK)
+                    var response = client.PostAsync(url, content).Result;
+                    if (response.StatusCode != HttpStatusCode.OK)
                     {
                         return default(T);
                     }
 
-                    var json = result.Content.ReadAsStringAsync().Result;
+                    var json = response.Content.ReadAsStringAsync().Result;
                     return DeserializeJson<T>(json, settings);
                 }
                 catch
@@ -105,9 +105,21 @@ namespace Mobilize.Common.Http
             using (var client = new HttpClient())
             {
                 AddRequestHeaders(client, credentials);
-                var result = await client.PostAsync(url, content);
-                var json = await result.Content.ReadAsStringAsync();
-                return DeserializeJson<T>(json, settings);
+                try
+                {
+                    var response = await client.PostAsync(url, content);
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        return default(T);
+                    }
+
+                    var json = await response.Content.ReadAsStringAsync();
+                    return DeserializeJson<T>(json, settings);
+                }
+                catch
+                {
+                    return default(T);
+                }
             }
         }
 
