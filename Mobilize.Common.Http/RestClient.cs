@@ -172,6 +172,54 @@ namespace Mobilize.Common.Http
         }
 
         /// <summary>
+        /// Put JSON data to a URL with blank response
+        /// </summary>
+        /// <param name="url">URL to which to PUT</param>
+        /// <param name="content">Content to PUT</param>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>True if successfully processed, otherwise false</returns>
+        public static bool PutBlankResponse(string url, HttpContent content, string credentials = null)
+        {
+            using (var client = new HttpClient())
+            {
+                AddRequestHeaders(client, credentials);
+                try
+                {
+                    var response = client.PutAsync(url, content).Result;
+                    return IsBlankResponse(response);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously put JSON data to a URL with blank response
+        /// </summary>
+        /// <param name="url">URL to which to PUT</param>
+        /// <param name="content">Content to PUT</param>
+        /// <param name="credentials">Credentials for basic authentication header</param>
+        /// <returns>True if successfully processed, otherwise false</returns>
+        public async static Task<bool> PutBlankResponseAsync(string url, HttpContent content, string credentials = null)
+        {
+            using (var client = new HttpClient())
+            {
+                AddRequestHeaders(client, credentials);
+                try
+                {
+                    var response = await client.PutAsync(url, content);
+                    return IsBlankResponse(response);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
         /// Retrieve JSON data
         /// </summary>
         /// <param name="url">URL from where to retrieve</param>
